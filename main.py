@@ -19,7 +19,7 @@ from reportlab.lib import colors
 # --- КОНФИГУРАЦИЯ ---
 API_TOKEN = os.getenv("API_TOKEN")
 CLAUDE_KEY = os.getenv("CLAUDE_KEY")
-ADMIN_ID = 7262437300
+ADMIN_ID = 7262437300 
 PRICE_STARS = 100
 
 FREE_TOTAL_LIMIT = 10
@@ -28,7 +28,7 @@ LOG_ALL_USERS = "all_history_users.txt"
 # --- СЛОВАРЬ ПЕРЕВОДОВ ---
 TEXTS = {
     "Русский": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
+        "start": "<b>Telecode AI Bot</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
         "btn_create": "🚀 Создать резюме",
         "ask_lang": "Выберите язык резюме:",
         "ask_name": "Введите ваше имя и фамилию:",
@@ -36,15 +36,15 @@ TEXTS = {
         "ask_exp": "Опишите ваш опыт работы:",
         "ask_skills": "Ваши ключевые навыки (через запятую):",
         "gen_wait": "⏳ Claude формирует ваше резюме...",
-        "success": "✅ Ваше резюме готово!\n\nС уважением, Telecode 🇲🇩",
+        "success": "✅ Ваше резюме готово!\n\nС уважением, Telecode AI Bot 🇲🇩",
         "admin_mode": "🔧 Режим разработчика: Бесплатно.",
         "promo_total": f"🎁 Акция! Вы в числе первых {FREE_TOTAL_LIMIT} тестеров. Это бесплатно!",
-        "promo_first": "🎁 Подарок! Ваша первая генерация в Telecode — бесплатно.",
+        "promo_first": "🎁 Подарок! Ваша первая генерация в Telecode AI — бесплатно.",
         "invoice_desc": "Генерация профессионального CV",
-        "pdf_footer": "Создано Telecode CV Agent"
+        "pdf_footer": "Создано Telecode AI Bot"
     },
     "Română": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
+        "start": "<b>Telecode AI Bot</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
         "btn_create": "🚀 Creează CV",
         "ask_lang": "Alegeți limba CV-ului:",
         "ask_name": "Introduceți numele și prenumele:",
@@ -52,15 +52,15 @@ TEXTS = {
         "ask_exp": "Descrieți experiența de muncă:",
         "ask_skills": "Abilitățile cheie (separate prin virgulă):",
         "gen_wait": "⏳ Claude vă generează CV-ul...",
-        "success": "✅ CV-ul este gata!\n\nCu respect, Telecode 🇲🇩",
+        "success": "✅ CV-ul este gata!\n\nCu respect, Telecode AI Bot 🇲🇩",
         "admin_mode": "🔧 Mod dezvoltator: Gratuit.",
         "promo_total": f"🎁 Promoție! Sunteți printre primii {FREE_TOTAL_LIMIT} testeri. Este gratuit!",
-        "promo_first": "🎁 Cadou! Prima generare la Telecode este gratuită.",
+        "promo_first": "🎁 Cadou! Prima generare la Telecode AI este gratuită.",
         "invoice_desc": "Generarea unui CV profesional",
-        "pdf_footer": "Creat de Telecode CV Agent"
+        "pdf_footer": "Creat de Telecode AI Bot"
     },
     "English": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
+        "start": "<b>Telecode AI Bot</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
         "btn_create": "🚀 Create Resume",
         "ask_lang": "Choose resume language:",
         "ask_name": "Enter your full name:",
@@ -68,12 +68,12 @@ TEXTS = {
         "ask_exp": "Describe your work experience:",
         "ask_skills": "Your key skills (comma separated):",
         "gen_wait": "⏳ Claude is generating your resume...",
-        "success": "✅ Your resume is ready!\n\nBest regards, Telecode 🇲🇩",
+        "success": "✅ Your resume is ready!\n\nBest regards, Telecode AI Bot 🇲🇩",
         "admin_mode": "🔧 Developer Mode: Free.",
         "promo_total": f"🎁 Promo! You are among the first {FREE_TOTAL_LIMIT} testers. It's free!",
-        "promo_first": "🎁 Gift! Your first generation at Telecode is free.",
+        "promo_first": "🎁 Gift! Your first generation at Telecode AI is free.",
         "invoice_desc": "Professional CV Generation",
-        "pdf_footer": "Created by Telecode CV Agent"
+        "pdf_footer": "Created by Telecode AI Bot"
     }
 }
 
@@ -85,10 +85,9 @@ logging.basicConfig(level=logging.INFO)
 # --- ФУНКЦИИ ЛОГИКИ ---
 
 async def notify_admin(user: types.User):
-    """Функция уведомления тебя о новом клиенте"""
     try:
         text = (
-            f"🔔 <b>Новый пользователь в Telecode!</b>\n\n"
+            f"🔔 <b>Новый пользователь в Telecode AI!</b>\n\n"
             f"👤 Имя: {user.full_name}\n"
             f"🆔 ID: <code>{user.id}</code>\n"
             f"🔗 Юзернейм: @{user.username if user.username else 'нет'}"
@@ -149,7 +148,8 @@ def create_pdf(text, lang_name):
     
     c.setFont(main_font, 8)
     c.setFillColor(colors.grey)
-    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Scouter999_bot")
+    # Здесь тоже обновлено имя бота в подписи
+    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Telecode_AI_Bot")
     c.save()
     buffer.seek(0)
     return buffer
@@ -158,12 +158,10 @@ def create_pdf(text, lang_name):
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # Сначала приветствуем пользователя, чтобы он не ждал
     t = TEXTS["Русский"]
     kb = types.InlineKeyboardMarkup(inline_keyboard=[[types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]])
     await message.answer(t["start"], parse_mode="HTML", reply_markup=kb)
     
-    # Затем ТИХО уведомляем тебя
     if message.from_user.id != ADMIN_ID:
         await notify_admin(message.from_user)
 
@@ -259,7 +257,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
 
     try:
         response = await claude.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-sonnet-4-20250514",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -269,7 +267,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
         await msg.delete()
         await bot.send_document(
             message.chat.id, 
-            types.BufferedInputFile(pdf.read(), filename="CV_Telecode.pdf"),
+            types.BufferedInputFile(pdf.read(), filename="CV_Telecode_AI.pdf"),
             caption=t["success"]
         )
     except Exception as e:
