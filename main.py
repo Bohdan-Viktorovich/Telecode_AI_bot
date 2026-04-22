@@ -144,9 +144,15 @@ def create_pdf(text, lang_name):
 # --- ХЕНДЛЕРЫ ---
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # По умолчанию на русском, пока язык не выбран
+    # Отправляем уведомление тебе (только если это не ты сам нажал старт)
+    if message.from_user.id != ADMIN_ID:
+        await notify_admin(message.from_user)
+
+    # Стандартное приветствие
     t = TEXTS["Русский"]
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[[types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]])
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]
+    ])
     await message.answer(t["start"], parse_mode="HTML", reply_markup=kb)
 
 @dp.callback_query(F.data == "start_cv")
@@ -194,6 +200,18 @@ async def request_payment(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang = data['language']
     t = TEXTS[lang]
+
+async def notify_admin(user: types.User):
+    try:
+        text = (
+            f"🔔 <b>Новый пользователь в боте!</b>\n\n"
+            f"👤 Имя: {user.full_name}\n"
+            f"🆔 ID: <code>{user.id}</code>\n"
+            f"🔗 Юзернейм: @{user.username if user.username else 'нет'}"
+        )
+        await bot.send_message(ADMIN_ID, text, parse_mode="HTML")
+    except Exception as e:
+        logging.error(f"Не удалось отправить уведомление админу: {e}")
     
     user_id = message.from_user.id
     total_done = get_total_cv_count()
