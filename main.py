@@ -241,7 +241,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
 
     try:
         response = await claude.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-sonnet-4-20250514",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}]
         )
