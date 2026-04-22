@@ -22,39 +22,79 @@ CLAUDE_KEY = os.getenv("CLAUDE_KEY")
 ADMIN_ID = 7262437300
 PRICE_STARS = 100
 
-# Настройки акций
-FREE_TOTAL_LIMIT = 10  # Общий лимит на старте
-LOG_ALL_USERS = "all_history_users.txt" # Все, кто когда-либо делал
+FREE_TOTAL_LIMIT = 10
+LOG_ALL_USERS = "all_history_users.txt"
 
-if not API_TOKEN or not CLAUDE_KEY:
-    exit("Ошибка: Проверьте переменные API_TOKEN и CLAUDE_KEY в Railway!")
+# --- СЛОВАРЬ ПЕРЕВОДОВ ---
+TEXTS = {
+    "Русский": {
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
+        "btn_create": "🚀 Создать резюме",
+        "ask_lang": "Выберите язык резюме:",
+        "ask_name": "Введите ваше имя и фамилию:",
+        "ask_pos": "Какую должность вы хотите занять?",
+        "ask_exp": "Опишите ваш опыт работы:",
+        "ask_skills": "Ваши ключевые навыки (через запятую):",
+        "gen_wait": "⏳ Claude формирует ваше резюме...",
+        "success": "✅ Ваше резюме готово!\n\nС уважением, Telecode 🇲🇩",
+        "admin_mode": "🔧 Режим разработчика: Бесплатно.",
+        "promo_total": f"🎁 Акция! Вы в числе первых {FREE_TOTAL_LIMIT} тестеров. Это бесплатно!",
+        "promo_first": "🎁 Подарок! Ваша первая генерация в Telecode — бесплатно.",
+        "invoice_desc": "Генерация профессионального CV",
+        "pdf_footer": "Создано Telecode CV Agent"
+    },
+    "Română": {
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
+        "btn_create": "🚀 Creează CV",
+        "ask_lang": "Alegeți limba CV-ului:",
+        "ask_name": "Introduceți numele și prenumele:",
+        "ask_pos": "Ce funcție doriți să ocupați?",
+        "ask_exp": "Descrieți experiența de muncă:",
+        "ask_skills": "Abilitățile cheie (separate prin virgulă):",
+        "gen_wait": "⏳ Claude vă generează CV-ul...",
+        "success": "✅ CV-ul este gata!\n\nCu respect, Telecode 🇲🇩",
+        "admin_mode": "🔧 Mod dezvoltator: Gratuit.",
+        "promo_total": f"🎁 Promoție! Sunteți printre primii {FREE_TOTAL_LIMIT} testeri. Este gratuit!",
+        "promo_first": "🎁 Cadou! Prima generare la Telecode este gratuită.",
+        "invoice_desc": "Generarea unui CV profesional",
+        "pdf_footer": "Creat de Telecode CV Agent"
+    },
+    "English": {
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
+        "btn_create": "🚀 Create Resume",
+        "ask_lang": "Choose resume language:",
+        "ask_name": "Enter your full name:",
+        "ask_pos": "What position are you applying for?",
+        "ask_exp": "Describe your work experience:",
+        "ask_skills": "Your key skills (comma separated):",
+        "gen_wait": "⏳ Claude is generating your resume...",
+        "success": "✅ Your resume is ready!\n\nBest regards, Telecode 🇲🇩",
+        "admin_mode": "🔧 Developer Mode: Free.",
+        "promo_total": f"🎁 Promo! You are among the first {FREE_TOTAL_LIMIT} testers. It's free!",
+        "promo_first": "🎁 Gift! Your first generation at Telecode is free.",
+        "invoice_desc": "Professional CV Generation",
+        "pdf_footer": "Created by Telecode CV Agent"
+    }
+}
 
+# Инициализация бота
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 claude = AsyncAnthropic(api_key=CLAUDE_KEY)
-
 logging.basicConfig(level=logging.INFO)
 
-# --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-
+# --- ФУНКЦИИ ЛОГИКИ ---
 def get_total_cv_count():
-    """Считает общее количество сделанных резюме в системе"""
     if not os.path.exists(LOG_ALL_USERS): return 0
-    with open(LOG_ALL_USERS, "r") as f:
-        return len(f.readlines())
+    with open(LOG_ALL_USERS, "r") as f: return len(f.readlines())
 
 def has_user_made_cv(user_id):
-    """Проверяет, делал ли этот конкретный юзер резюме раньше"""
     if not os.path.exists(LOG_ALL_USERS): return False
-    with open(LOG_ALL_USERS, "r") as f:
-        return str(user_id) in f.read()
+    with open(LOG_ALL_USERS, "r") as f: return str(user_id) in f.read()
 
 def log_cv_generation(user_id):
-    """Записывает ID пользователя после успешной генерации"""
-    with open(LOG_ALL_USERS, "a") as f:
-        f.write(f"{user_id}\n")
+    with open(LOG_ALL_USERS, "a") as f: f.write(f"{user_id}\n")
 
-# --- FSM СОСТОЯНИЯ ---
 class CVForm(StatesGroup):
     language = State()
     full_name = State()
@@ -62,20 +102,18 @@ class CVForm(StatesGroup):
     experience = State()
     skills = State()
 
-# --- ОЧИСТКА MARKDOWN ---
 def clean_markdown(text):
     text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
     text = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', text)
     text = re.sub(r'^-{3,}$', '─' * 50, text, flags=re.MULTILINE)
-    text = re.sub(r'^\s{2,}', '', text, flags=re.MULTILINE)
     return text.strip()
 
-# --- ГЕНЕРАЦИЯ PDF ---
-def create_pdf(text):
+def create_pdf(text, lang_name):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     font_name = "font.ttf"
+    footer_text = TEXTS.get(lang_name, TEXTS["English"])["pdf_footer"]
 
     try:
         pdfmetrics.registerFont(TTFont('CustomFont', font_name))
@@ -93,100 +131,90 @@ def create_pdf(text):
             c.showPage()
             y = height - margin
             c.setFont(main_font, 10)
-        
-        # Визуальное выделение заголовков
-        is_header = any(line.startswith(kw) for kw in ['КОНТАКТ', 'ЦЕЛЬ', 'ОПЫТ', 'ОБРАЗОВАН', 'НАВЫК']) or line.endswith(':')
-        if is_header:
-            c.setFont(main_font, 11)
-            c.setFillColor(colors.HexColor('#1a1a2e'))
-        else:
-            c.setFont(main_font, 10)
-            c.setFillColor(colors.black)
-
         c.drawString(margin, y, line[:95])
         y -= 15
     
     c.setFont(main_font, 8)
     c.setFillColor(colors.grey)
-    c.drawCentredString(width/2, 0.5 * inch, "Создано Telecode CV Agent • @Scouter999_bot")
-    
+    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Scouter999_bot")
     c.save()
     buffer.seek(0)
     return buffer
 
 # --- ХЕНДЛЕРЫ ---
-
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="🚀 Создать резюме", callback_data="start_cv")]
-    ])
-    await message.answer(
-        "<b>Telecode CV Agent</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\n"
-        "Первая генерация для новых пользователей — <b>Бесплатно</b>!", 
-        parse_mode="HTML", reply_markup=kb
-    )
+    # По умолчанию на русском, пока язык не выбран
+    t = TEXTS["Русский"]
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[[types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]])
+    await message.answer(t["start"], parse_mode="HTML", reply_markup=kb)
 
 @dp.callback_query(F.data == "start_cv")
 async def start_survey(callback: types.CallbackQuery, state: FSMContext):
     kb = types.ReplyKeyboardMarkup(keyboard=[
         [types.KeyboardButton(text="Русский"), types.KeyboardButton(text="Română"), types.KeyboardButton(text="English")]
     ], resize_keyboard=True)
-    await callback.message.answer("Выберите язык резюме:", reply_markup=kb)
+    await callback.message.answer(TEXTS["Русский"]["ask_lang"], reply_markup=kb)
     await state.set_state(CVForm.language)
 
 @dp.message(CVForm.language)
 async def process_lang(message: types.Message, state: FSMContext):
-    await state.update_data(language=message.text)
-    await message.answer("Введите ваше имя и фамилию:", reply_markup=types.ReplyKeyboardRemove())
+    lang = message.text if message.text in TEXTS else "Русский"
+    await state.update_data(language=lang)
+    await message.answer(TEXTS[lang]["ask_name"], reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(CVForm.full_name)
 
 @dp.message(CVForm.full_name)
 async def process_name(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data['language']
     await state.update_data(full_name=message.text)
-    await message.answer("Какую должность вы хотите занять?")
+    await message.answer(TEXTS[lang]["ask_pos"])
     await state.set_state(CVForm.position)
 
 @dp.message(CVForm.position)
 async def process_pos(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data['language']
     await state.update_data(position=message.text)
-    await message.answer("Опишите ваш опыт работы:")
+    await message.answer(TEXTS[lang]["ask_exp"])
     await state.set_state(CVForm.experience)
 
 @dp.message(CVForm.experience)
 async def process_exp(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data['language']
     await state.update_data(experience=message.text)
-    await message.answer("Ваши ключевые навыки (через запятую):")
+    await message.answer(TEXTS[lang]["ask_skills"])
     await state.set_state(CVForm.skills)
 
 @dp.message(CVForm.skills)
 async def request_payment(message: types.Message, state: FSMContext):
     await state.update_data(skills=message.text)
+    data = await state.get_data()
+    lang = data['language']
+    t = TEXTS[lang]
     
     user_id = message.from_user.id
     total_done = get_total_cv_count()
     user_already_did = has_user_made_cv(user_id)
 
-    # 1. ТЫ (АДМИН)
     if user_id == ADMIN_ID:
-        await message.answer("🔧 Режим разработчика: Бесплатно.")
+        await message.answer(t["admin_mode"])
         return await generate_cv(message, state)
 
-    # 2. ОБЩАЯ АКЦИЯ (Первые 10 в системе)
     if total_done < FREE_TOTAL_LIMIT:
-        await message.answer(f"🎁 Акция! Вы в числе первых {FREE_TOTAL_LIMIT} тестеров. Это бесплатно!")
+        await message.answer(t["promo_total"])
         return await generate_cv(message, state)
 
-    # 3. ПЕРСОНАЛЬНЫЙ БОНУС (Первый раз для юзера)
     if not user_already_did:
-        await message.answer("🎁 Подарок! Ваша первая генерация в Telecode — бесплатно.")
+        await message.answer(t["promo_first"])
         return await generate_cv(message, state)
 
-    # 4. ПЛАТНО (Если не админ, не в первых 10 и уже делал раньше)
     await message.answer_invoice(
-        title="PDF Резюме", description="Генерация CV",
+        title="PDF CV", description=t["invoice_desc"],
         payload="cv_pay", currency="XTR",
-        prices=[types.LabeledPrice(label="Генерация", amount=PRICE_STARS)],
+        prices=[types.LabeledPrice(label="CV", amount=PRICE_STARS)],
         provider_token=""
     )
 
@@ -200,32 +228,34 @@ async def on_success(message: types.Message, state: FSMContext):
 
 async def generate_cv(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    msg = await message.answer("⏳ Claude формирует ваше резюме...")
+    lang = data['language']
+    t = TEXTS[lang]
+    msg = await message.answer(t["gen_wait"])
     
     prompt = (
-        f"Создай профессиональное резюме на {data['language']}.\n"
-        f"Имя: {data['full_name']}\nДолжность: {data['position']}\n"
-        f"Опыт: {data['experience']}\nНавыки: {data['skills']}\n"
-        "БЕЗ MARKDOWN. Заголовки капсом."
+        f"Create a professional resume in {lang}.\n"
+        f"Name: {data['full_name']}\nPosition: {data['position']}\n"
+        f"Experience: {data['experience']}\nSkills: {data['skills']}\n"
+        "NO MARKDOWN. Use CAPITAL HEADERS."
     )
 
     try:
         response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-3-5-sonnet-20240620",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}]
         )
-        pdf = create_pdf(response.content[0].text)
-        log_cv_generation(message.from_user.id) # Логируем успех
+        pdf = create_pdf(response.content[0].text, lang)
+        log_cv_generation(message.from_user.id)
         
         await msg.delete()
         await bot.send_document(
             message.chat.id, 
             types.BufferedInputFile(pdf.read(), filename="CV_Telecode.pdf"),
-            caption="✅ Готово! С уважением, Telecode 🇲🇩"
+            caption=t["success"]
         )
     except Exception as e:
-        await message.answer(f"❌ Ошибка: {e}")
+        await message.answer(f"❌ Error: {e}")
     await state.clear()
 
 async def main():
