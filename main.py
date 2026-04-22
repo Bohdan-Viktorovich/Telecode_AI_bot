@@ -28,7 +28,7 @@ LOG_ALL_USERS = "all_history_users.txt"
 # --- СЛОВАРЬ ПЕРЕВОДОВ ---
 TEXTS = {
     "Русский": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
+        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
         "btn_create": "🚀 Создать резюме",
         "ask_lang": "Выберите язык резюме:",
         "ask_name": "Введите ваше имя и фамилию:",
@@ -41,10 +41,10 @@ TEXTS = {
         "promo_total": f"🎁 Акция! Вы в числе первых {FREE_TOTAL_LIMIT} тестеров. Это бесплатно!",
         "promo_first": "🎁 Подарок! Ваша первая генерация в Telecode — бесплатно.",
         "invoice_desc": "Генерация профессионального CV",
-        "pdf_footer": "Создано Telecode CV Agent"
+        "pdf_footer": "Создано Telecode_AI_Bot"
     },
     "Română": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
+        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
         "btn_create": "🚀 Creează CV",
         "ask_lang": "Alegeți limba CV-ului:",
         "ask_name": "Introduceți numele și prenumele:",
@@ -57,10 +57,10 @@ TEXTS = {
         "promo_total": f"🎁 Promoție! Sunteți printre primii {FREE_TOTAL_LIMIT} testeri. Este gratuit!",
         "promo_first": "🎁 Cadou! Prima generare la Telecode este gratuită.",
         "invoice_desc": "Generarea unui CV profesional",
-        "pdf_footer": "Creat de Telecode CV Agent"
+        "pdf_footer": "Creat de Telecode_AI_Bot"
     },
     "English": {
-        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
+        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
         "btn_create": "🚀 Create Resume",
         "ask_lang": "Choose resume language:",
         "ask_name": "Enter your full name:",
@@ -73,7 +73,7 @@ TEXTS = {
         "promo_total": f"🎁 Promo! You are among the first {FREE_TOTAL_LIMIT} testers. It's free!",
         "promo_first": "🎁 Gift! Your first generation at Telecode is free.",
         "invoice_desc": "Professional CV Generation",
-        "pdf_footer": "Created by Telecode CV Agent"
+        "pdf_footer": "Created by Telecode_AI_Bot"
     }
 }
 
@@ -251,7 +251,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
         await msg.delete()
         await bot.send_document(
             message.chat.id, 
-            types.BufferedInputFile(pdf.read(), filename="CV_Telecode.pdf"),
+            types.BufferedInputFile(pdf.read(), filename="Telecode_AI_Bot.pdf"),
             caption=t["success"]
         )
     except Exception as e:
