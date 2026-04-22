@@ -28,7 +28,7 @@ LOG_ALL_USERS = "all_history_users.txt"
 # --- СЛОВАРЬ ПЕРЕВОДОВ ---
 TEXTS = {
     "Русский": {
-        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nСоздам профессиональное PDF-резюме с помощью ИИ Claude.\nПервая генерация для новых пользователей — <b>Бесплатно</b>!",
         "btn_create": "🚀 Создать резюме",
         "ask_lang": "Выберите язык резюме:",
         "ask_name": "Введите ваше имя и фамилию:",
@@ -41,10 +41,10 @@ TEXTS = {
         "promo_total": f"🎁 Акция! Вы в числе первых {FREE_TOTAL_LIMIT} тестеров. Это бесплатно!",
         "promo_first": "🎁 Подарок! Ваша первая генерация в Telecode — бесплатно.",
         "invoice_desc": "Генерация профессионального CV",
-        "pdf_footer": "Создано Telecode_AI_Bot"
+        "pdf_footer": "Создано Telecode CV Agent"
     },
     "Română": {
-        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nVoi crea un CV PDF profesional cu ajutorul AI Claude.\nPrima generare pentru utilizatorii noi este <b>Gratuită</b>!",
         "btn_create": "🚀 Creează CV",
         "ask_lang": "Alegeți limba CV-ului:",
         "ask_name": "Introduceți numele și prenumele:",
@@ -57,10 +57,10 @@ TEXTS = {
         "promo_total": f"🎁 Promoție! Sunteți printre primii {FREE_TOTAL_LIMIT} testeri. Este gratuit!",
         "promo_first": "🎁 Cadou! Prima generare la Telecode este gratuită.",
         "invoice_desc": "Generarea unui CV profesional",
-        "pdf_footer": "Creat de Telecode_AI_Bot"
+        "pdf_footer": "Creat de Telecode CV Agent"
     },
     "English": {
-        "start": "<b>Telecode_AI_Bot</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
+        "start": "<b>Telecode CV Agent</b> 🇲🇩\n\nI will create a professional PDF resume using Claude AI.\nFirst generation for new users is <b>Free</b>!",
         "btn_create": "🚀 Create Resume",
         "ask_lang": "Choose resume language:",
         "ask_name": "Enter your full name:",
@@ -73,17 +73,30 @@ TEXTS = {
         "promo_total": f"🎁 Promo! You are among the first {FREE_TOTAL_LIMIT} testers. It's free!",
         "promo_first": "🎁 Gift! Your first generation at Telecode is free.",
         "invoice_desc": "Professional CV Generation",
-        "pdf_footer": "Created by Telecode_AI_Bot"
+        "pdf_footer": "Created by Telecode CV Agent"
     }
 }
 
-# Инициализация бота
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 claude = AsyncAnthropic(api_key=CLAUDE_KEY)
 logging.basicConfig(level=logging.INFO)
 
 # --- ФУНКЦИИ ЛОГИКИ ---
+
+async def notify_admin(user: types.User):
+    """Функция уведомления тебя о новом клиенте"""
+    try:
+        text = (
+            f"🔔 <b>Новый пользователь в Telecode!</b>\n\n"
+            f"👤 Имя: {user.full_name}\n"
+            f"🆔 ID: <code>{user.id}</code>\n"
+            f"🔗 Юзернейм: @{user.username if user.username else 'нет'}"
+        )
+        await bot.send_message(ADMIN_ID, text, parse_mode="HTML")
+    except Exception as e:
+        logging.error(f"Ошибка уведомления админа: {e}")
+
 def get_total_cv_count():
     if not os.path.exists(LOG_ALL_USERS): return 0
     with open(LOG_ALL_USERS, "r") as f: return len(f.readlines())
@@ -113,7 +126,7 @@ def create_pdf(text, lang_name):
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     font_name = "font.ttf"
-    footer_text = TEXTS.get(lang_name, TEXTS["English"])["pdf_footer"]
+    footer_text = TEXTS.get(lang_name, TEXTS["Русский"])["pdf_footer"]
 
     try:
         pdfmetrics.registerFont(TTFont('CustomFont', font_name))
@@ -136,24 +149,23 @@ def create_pdf(text, lang_name):
     
     c.setFont(main_font, 8)
     c.setFillColor(colors.grey)
-    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Telecode_AI_Bot")
+    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Scouter999_bot")
     c.save()
     buffer.seek(0)
     return buffer
 
 # --- ХЕНДЛЕРЫ ---
+
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # Отправляем уведомление тебе (только если это не ты сам нажал старт)
+    # Сначала приветствуем пользователя, чтобы он не ждал
+    t = TEXTS["Русский"]
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[[types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]])
+    await message.answer(t["start"], parse_mode="HTML", reply_markup=kb)
+    
+    # Затем ТИХО уведомляем тебя
     if message.from_user.id != ADMIN_ID:
         await notify_admin(message.from_user)
-
-    # Стандартное приветствие
-    t = TEXTS["Русский"]
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text=t["btn_create"], callback_data="start_cv")]
-    ])
-    await message.answer(t["start"], parse_mode="HTML", reply_markup=kb)
 
 @dp.callback_query(F.data == "start_cv")
 async def start_survey(callback: types.CallbackQuery, state: FSMContext):
@@ -173,7 +185,7 @@ async def process_lang(message: types.Message, state: FSMContext):
 @dp.message(CVForm.full_name)
 async def process_name(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    lang = data['language']
+    lang = data.get('language', 'Русский')
     await state.update_data(full_name=message.text)
     await message.answer(TEXTS[lang]["ask_pos"])
     await state.set_state(CVForm.position)
@@ -181,7 +193,7 @@ async def process_name(message: types.Message, state: FSMContext):
 @dp.message(CVForm.position)
 async def process_pos(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    lang = data['language']
+    lang = data.get('language', 'Русский')
     await state.update_data(position=message.text)
     await message.answer(TEXTS[lang]["ask_exp"])
     await state.set_state(CVForm.experience)
@@ -189,7 +201,7 @@ async def process_pos(message: types.Message, state: FSMContext):
 @dp.message(CVForm.experience)
 async def process_exp(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    lang = data['language']
+    lang = data.get('language', 'Русский')
     await state.update_data(experience=message.text)
     await message.answer(TEXTS[lang]["ask_skills"])
     await state.set_state(CVForm.skills)
@@ -198,20 +210,8 @@ async def process_exp(message: types.Message, state: FSMContext):
 async def request_payment(message: types.Message, state: FSMContext):
     await state.update_data(skills=message.text)
     data = await state.get_data()
-    lang = data['language']
+    lang = data.get('language', 'Русский')
     t = TEXTS[lang]
-
-async def notify_admin(user: types.User):
-    try:
-        text = (
-            f"🔔 <b>Новый пользователь в боте!</b>\n\n"
-            f"👤 Имя: {user.full_name}\n"
-            f"🆔 ID: <code>{user.id}</code>\n"
-            f"🔗 Юзернейм: @{user.username if user.username else 'нет'}"
-        )
-        await bot.send_message(ADMIN_ID, text, parse_mode="HTML")
-    except Exception as e:
-        logging.error(f"Не удалось отправить уведомление админу: {e}")
     
     user_id = message.from_user.id
     total_done = get_total_cv_count()
@@ -246,7 +246,7 @@ async def on_success(message: types.Message, state: FSMContext):
 
 async def generate_cv(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    lang = data['language']
+    lang = data.get('language', 'Русский')
     t = TEXTS[lang]
     msg = await message.answer(t["gen_wait"])
     
@@ -259,7 +259,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
 
     try:
         response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-3-5-sonnet-20240620",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -269,7 +269,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
         await msg.delete()
         await bot.send_document(
             message.chat.id, 
-            types.BufferedInputFile(pdf.read(), filename="Telecode_AI_Bot.pdf"),
+            types.BufferedInputFile(pdf.read(), filename="CV_Telecode.pdf"),
             caption=t["success"]
         )
     except Exception as e:
