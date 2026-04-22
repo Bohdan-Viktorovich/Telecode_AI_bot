@@ -136,7 +136,7 @@ def create_pdf(text, lang_name):
     
     c.setFont(main_font, 8)
     c.setFillColor(colors.grey)
-    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Scouter999_bot")
+    c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Telecode_AI_Bot")
     c.save()
     buffer.seek(0)
     return buffer
