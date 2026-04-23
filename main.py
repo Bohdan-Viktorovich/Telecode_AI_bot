@@ -79,8 +79,10 @@ TEXTS = {
         "gen_wait": "⏳ Claude формирует ваше резюме...",
         "success": (
             "✅ Ваше резюме готово!\n\n"
-            "💼 Ищете работу за рубежом? Попробуйте платформу:\n"
-            "👉 https://preply.sjv.io/PzrmvM  (тысячи вакансий в Европе)\n\n"
+            "📚 Резюме на английском — это половина успеха.\n"
+            "Вторая половина — уверенный английский на собеседовании.\n"
+            "Попробуйте урок с репетитором 👇\n"
+            "👉 https://preply.sjv.io/PzrmvM"
             "С уважением, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Режим разработчика: бесплатная генерация.",
@@ -105,8 +107,10 @@ TEXTS = {
         "gen_wait": "⏳ Claude vă generează CV-ul...",
         "success": (
             "✅ CV-ul este gata!\n\n"
-            "💼 Cauți un loc de muncă în Europa?\n"
-            "👉 https://preply.sjv.io/PzrmvM  (mii de oferte)\n\n"
+            "📚 Un CV bun e primul pas.\n"
+            "Al doilea — engleza perfectă la interviu.\n"
+            "Încearcă o lecție cu un profesor 👇\n"
+            "👉 https://preply.sjv.io/PzrmvM"
             "Cu respect, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Mod dezvoltator: gratuit.",
@@ -131,8 +135,10 @@ TEXTS = {
         "gen_wait": "⏳ Claude is generating your resume...",
         "success": (
             "✅ Your resume is ready!\n\n"
-            "💼 Looking for jobs in Europe?\n"
-            "👉 https://preply.sjv.io/PzrmvM  (millions of vacancies)\n\n"
+            "📚 Great resume is step one.\n"
+            "Step two — nail your interview in English.\n"
+            "Try a lesson with a tutor 👇\n"
+            "👉 https://preply.sjv.io/PzrmvM"
             "Best regards, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Developer Mode: free generation.",
