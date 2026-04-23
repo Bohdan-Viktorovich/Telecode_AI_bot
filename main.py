@@ -15,6 +15,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.units import inch
 from reportlab.lib import colors
+# Новые импорты для автоматического переноса текста
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 
 # --- КОНФИГУРАЦИЯ ---
 API_TOKEN = os.getenv("API_TOKEN")
@@ -133,22 +136,53 @@ def create_pdf(text, lang_name):
     except:
         main_font = 'Helvetica'
 
+    # Настройка стилей для абзацев
+    styles = getSampleStyleSheet()
+    normal_style = ParagraphStyle(
+        name='CustomNormal',
+        fontName=main_font,
+        fontSize=10,
+        leading=14,
+        textColor=colors.black,
+        alignment=0
+    )
+    header_style = ParagraphStyle(
+        name='CustomHeader',
+        fontName=main_font,
+        fontSize=11,
+        leading=16,
+        textColor=colors.HexColor('#1a1a2e'),
+        spaceAfter=5,
+        alignment=0
+    )
+
     clean_text = clean_markdown(text)
     margin = 0.75 * inch
+    usable_width = width - 2 * margin
     y = height - margin
     
-    c.setFont(main_font, 10)
     for line in clean_text.split('\n'):
-        if y < 1 * inch:
+        line = line.strip()
+        if not line:
+            y -= 10
+            continue
+            
+        # Определение заголовков для выделения стилем
+        is_header = any(line.upper().startswith(kw) for kw in ['КОНТАКТ', 'ЦЕЛЬ', 'ОПЫТ', 'ОБРАЗОВАН', 'НАВЫК', 'CONTACT', 'OBJECTIVE', 'EXPERIENCE', 'SKILLS', 'EDUCATION']) or line.endswith(':')
+        current_style = header_style if is_header else normal_style
+        
+        p = Paragraph(line, current_style)
+        w, h = p.wrap(usable_width, height)
+        
+        if y - h < 1 * inch:
             c.showPage()
             y = height - margin
-            c.setFont(main_font, 10)
-        c.drawString(margin, y, line[:95])
-        y -= 15
+        
+        p.drawOn(c, margin, y - h)
+        y -= (h + 5)
     
     c.setFont(main_font, 8)
     c.setFillColor(colors.grey)
-    # Здесь тоже обновлено имя бота в подписи
     c.drawCentredString(width/2, 0.5 * inch, f"{footer_text} • @Telecode_AI_Bot")
     c.save()
     buffer.seek(0)
@@ -252,7 +286,7 @@ async def generate_cv(message: types.Message, state: FSMContext):
         f"Create a professional resume in {lang}.\n"
         f"Name: {data['full_name']}\nPosition: {data['position']}\n"
         f"Experience: {data['experience']}\nSkills: {data['skills']}\n"
-        "NO MARKDOWN. Use CAPITAL HEADERS."
+        "NO MARKDOWN. Use CAPITAL HEADERS for sections."
     )
 
     try:
