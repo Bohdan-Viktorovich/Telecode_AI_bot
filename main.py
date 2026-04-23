@@ -80,7 +80,7 @@ TEXTS = {
         "success": (
             "✅ Ваше резюме готово!\n\n"
             "💼 Ищете работу за рубежом? Попробуйте платформу:\n"
-            "👉 https://www.work.ua  (тысячи вакансий в Европе)\n\n"
+            "👉 https://preply.sjv.io/PzrmvM  (тысячи вакансий в Европе)\n\n"
             "С уважением, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Режим разработчика: бесплатная генерация.",
@@ -106,7 +106,7 @@ TEXTS = {
         "success": (
             "✅ CV-ul este gata!\n\n"
             "💼 Cauți un loc de muncă în Europa?\n"
-            "👉 https://www.ejobs.ro  (mii de oferte)\n\n"
+            "👉 https://preply.sjv.io/PzrmvM  (mii de oferte)\n\n"
             "Cu respect, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Mod dezvoltator: gratuit.",
@@ -132,7 +132,7 @@ TEXTS = {
         "success": (
             "✅ Your resume is ready!\n\n"
             "💼 Looking for jobs in Europe?\n"
-            "👉 https://www.linkedin.com/jobs  (millions of vacancies)\n\n"
+            "👉 https://preply.sjv.io/PzrmvM  (millions of vacancies)\n\n"
             "Best regards, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Developer Mode: free generation.",
