@@ -87,7 +87,6 @@ TEXTS = {
         ),
         "admin_mode": "🔧 Режим разработчика: бесплатная генерация.",
         "promo_total": f"🎁 Вы в числе первых {FREE_TOTAL_LIMIT} тестеров — бесплатно!",
-        "promo_first": "🎁 Первая генерация в Telecode AI — бесплатно!",
         "invoice_desc": "Генерация профессионального CV через ИИ Claude",
         "pdf_footer": "Создано Telecode AI Bot",
         "prompt_lang": "русском",
@@ -115,7 +114,6 @@ TEXTS = {
         ),
         "admin_mode": "🔧 Mod dezvoltator: gratuit.",
         "promo_total": f"🎁 Ești printre primii {FREE_TOTAL_LIMIT} testeri — gratuit!",
-        "promo_first": "🎁 Prima generare la Telecode AI este gratuită!",
         "invoice_desc": "Generarea unui CV profesional prin AI Claude",
         "pdf_footer": "Creat de Telecode AI Bot",
         "prompt_lang": "română",
@@ -143,7 +141,6 @@ TEXTS = {
         ),
         "admin_mode": "🔧 Developer Mode: free generation.",
         "promo_total": f"🎁 You are among the first {FREE_TOTAL_LIMIT} testers — it's free!",
-        "promo_first": "🎁 Your first generation at Telecode AI is free!",
         "invoice_desc": "Professional CV generation via Claude AI",
         "pdf_footer": "Created by Telecode AI Bot",
         "prompt_lang": "English",
@@ -362,10 +359,6 @@ async def request_payment(message: types.Message, state: FSMContext):
 
     if get_total_cv_count() < FREE_TOTAL_LIMIT:
         await message.answer(t["promo_total"])
-        return await generate_cv(message, state)
-
-    if not has_user_made_cv(user_id):
-        await message.answer(t["promo_first"])
         return await generate_cv(message, state)
 
     await message.answer_invoice(
