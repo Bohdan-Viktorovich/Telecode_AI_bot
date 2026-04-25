@@ -190,6 +190,7 @@ class CVForm(StatesGroup):
     position = State()
     experience = State()
     skills = State()
+    style = State()
 
 # --- ОЧИСТКА MARKDOWN ---
 def clean_markdown(text: str) -> str:
