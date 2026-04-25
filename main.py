@@ -21,14 +21,15 @@ from reportlab.lib import colors
 API_TOKEN = os.getenv("API_TOKEN")
 CLAUDE_KEY = os.getenv("CLAUDE_KEY")
 ADMIN_ID = 7262437300
+ADMIN_USERNAME = "@BohdanViktorovich1"
 PRICE_STARS = 100
 FREE_TOTAL_LIMIT = 10
-LOG_ALL_USERS = "/tmp/all_history_users.txt"  # /tmp/ работает на Railway
+LOG_ALL_USERS = "/tmp/all_history_users.txt"
 
 if not API_TOKEN or not CLAUDE_KEY:
     exit("Ошибка: Проверьте переменные API_TOKEN и CLAUDE_KEY в Railway!")
 
-# --- ШРИФТЫ: скачиваем с CDN при старте ---
+# --- ШРИФТЫ ---
 FONT_PATH = "/tmp/DejaVuSans.ttf"
 FONT_BOLD_PATH = "/tmp/DejaVuSans-Bold.ttf"
 
@@ -48,7 +49,6 @@ def download_fonts():
 
 download_fonts()
 
-# Регистрируем шрифты
 MAIN_FONT = 'Helvetica'
 BOLD_FONT = 'Helvetica-Bold'
 try:
@@ -60,7 +60,7 @@ try:
         BOLD_FONT = 'DejaVu-Bold'
     logging.info(f"Шрифты: {MAIN_FONT} / {BOLD_FONT}")
 except Exception as e:
-    logging.error(f"Ошибка регистрации шрифтов, используем Helvetica: {e}")
+    logging.error(f"Ошибка регистрации шрифтов: {e}")
 
 # --- ПЕРЕВОДЫ ---
 TEXTS = {
@@ -68,7 +68,7 @@ TEXTS = {
         "start": (
             "<b>Telecode AI Bot</b> 🇲🇩\n\n"
             "Создам профессиональное PDF-резюме с помощью ИИ Claude.\n"
-            "Первая генерация — <b>Бесплатно!</b>"
+            "Первые 10 пользователей — <b>Бесплатно!</b>"
         ),
         "btn_create": "🚀 Создать резюме",
         "ask_lang": "Выберите язык резюме:",
@@ -82,7 +82,9 @@ TEXTS = {
             "📚 Резюме на английском — это половина успеха.\n"
             "Вторая половина — уверенный английский на собеседовании.\n"
             "Попробуйте урок с репетитором 👇\n"
-            "👉 https://preply.sjv.io/PzrmvM"
+            "👉 https://preply.sjv.io/PzrmvM\n\n"
+            "❓ Есть вопросы, замечания или проблема?\n"
+            f"Пишите напрямую: {ADMIN_USERNAME}\n\n"
             "С уважением, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Режим разработчика: бесплатная генерация.",
@@ -95,7 +97,7 @@ TEXTS = {
         "start": (
             "<b>Telecode AI Bot</b> 🇲🇩\n\n"
             "Voi crea un CV PDF profesional cu ajutorul AI Claude.\n"
-            "Prima generare — <b>Gratuită!</b>"
+            "Primii 10 utilizatori — <b>Gratuit!</b>"
         ),
         "btn_create": "🚀 Creează CV",
         "ask_lang": "Alegeți limba CV-ului:",
@@ -109,7 +111,9 @@ TEXTS = {
             "📚 Un CV bun e primul pas.\n"
             "Al doilea — engleza perfectă la interviu.\n"
             "Încearcă o lecție cu un profesor 👇\n"
-            "👉 https://preply.sjv.io/PzrmvM"
+            "👉 https://preply.sjv.io/PzrmvM\n\n"
+            "❓ Ai întrebări, sugestii sau o problemă?\n"
+            f"Scrie direct: {ADMIN_USERNAME}\n\n"
             "Cu respect, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Mod dezvoltator: gratuit.",
@@ -122,7 +126,7 @@ TEXTS = {
         "start": (
             "<b>Telecode AI Bot</b> 🇲🇩\n\n"
             "I will create a professional PDF resume using Claude AI.\n"
-            "First generation — <b>Free!</b>"
+            "First 10 users — <b>Free!</b>"
         ),
         "btn_create": "🚀 Create Resume",
         "ask_lang": "Choose resume language:",
@@ -136,7 +140,9 @@ TEXTS = {
             "📚 Great resume is step one.\n"
             "Step two — nail your interview in English.\n"
             "Try a lesson with a tutor 👇\n"
-            "👉 https://preply.sjv.io/PzrmvM"
+            "👉 https://preply.sjv.io/PzrmvM\n\n"
+            "❓ Have questions, feedback or an issue?\n"
+            f"Contact us directly: {ADMIN_USERNAME}\n\n"
             "Best regards, Telecode AI Bot 🇲🇩"
         ),
         "admin_mode": "🔧 Developer Mode: free generation.",
@@ -172,12 +178,6 @@ def get_total_cv_count() -> int:
         return 0
     with open(LOG_ALL_USERS, "r") as f:
         return len(f.readlines())
-
-def has_user_made_cv(user_id: int) -> bool:
-    if not os.path.exists(LOG_ALL_USERS):
-        return False
-    with open(LOG_ALL_USERS, "r") as f:
-        return str(user_id) in f.read()
 
 def log_cv_generation(user_id: int):
     with open(LOG_ALL_USERS, "a") as f:
@@ -239,7 +239,6 @@ def create_pdf(text: str, lang: str) -> io.BytesIO:
             c.setFont(BOLD_FONT, 11)
             c.setFillColor(colors.HexColor('#1a1a2e'))
             line_height = 15
-            # Линия под заголовком
             c.setStrokeColor(colors.HexColor('#dddddd'))
             c.setLineWidth(0.5)
             c.line(margin, y - 3, width - margin, y - 3)
@@ -254,7 +253,6 @@ def create_pdf(text: str, lang: str) -> io.BytesIO:
             c.setFillColor(colors.HexColor('#222222'))
             line_height = 14
 
-        # Перенос длинных строк
         max_chars = int(usable_width / 5.5)
         words = line.split(' ')
         current_line = ''
@@ -282,7 +280,6 @@ def create_pdf(text: str, lang: str) -> io.BytesIO:
         if is_header:
             y -= 3
 
-    # Колонтитул
     c.setFont(MAIN_FONT, 8)
     c.setFillColor(colors.HexColor('#aaaaaa'))
     c.drawCentredString(width / 2, 0.35 * inch, f"{footer_text} • @Telecode_AI_Bot")
@@ -430,7 +427,10 @@ async def generate_cv(message: types.Message, state: FSMContext):
     except Exception as e:
         logging.error(f"Ошибка генерации: {e}")
         await msg.delete()
-        await message.answer(f"❌ Ошибка при генерации. Попробуйте ещё раз.\n\nДетали: {e}")
+        await message.answer(
+            f"❌ Ошибка при генерации. Попробуйте ещё раз.\n\n"
+            f"Если проблема повторяется — напишите: {ADMIN_USERNAME}"
+        )
 
     await state.clear()
 
