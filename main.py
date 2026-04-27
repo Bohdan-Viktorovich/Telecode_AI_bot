@@ -652,11 +652,11 @@ kb_new = types.InlineKeyboardMarkup(inline_keyboard=[[
     types.InlineKeyboardButton(text="🔄 Создать ещё резюме", callback_data="start_cv")
 ]])
 
-await bot.send_document(
-    message.chat.id,
-    types.BufferedInputFile(pdf.read(), filename="CV_Telecode_AI.pdf"),
-    caption=t["success"],
-    reply_markup=kb_new
+        await bot.send_document(
+            message.chat.id,
+            types.BufferedInputFile(pdf.read(), filename="CV_Telecode_AI.pdf"),
+            caption=t["success"],
+            reply_markup=kb_new
     )
 
         await bot.send_message(
