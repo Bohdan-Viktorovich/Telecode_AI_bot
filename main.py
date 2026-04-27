@@ -648,8 +648,8 @@ async def generate_cv(message: types.Message, state: FSMContext):
 
         await msg.delete()
             
-            # Кнопка "Создать ещё"
-            kb_new = types.InlineKeyboardMarkup(inline_keyboard=[[
+# Кнопка "Создать ещё"
+        kb_new = types.InlineKeyboardMarkup(inline_keyboard=[[
             types.InlineKeyboardButton(text="🔄 Создать ещё резюме", callback_data="start_cv")
   ]])
 
