@@ -647,11 +647,17 @@ async def generate_cv(message: types.Message, state: FSMContext):
         log_cv_generation(message.from_user.id)
 
         await msg.delete()
-        await bot.send_document(
-            message.chat.id,
-            types.BufferedInputFile(pdf.read(), filename="CV_Telecode_AI.pdf"),
-            caption=t["success"]
-        )
+        # Кнопка "Создать ещё"
+kb_new = types.InlineKeyboardMarkup(inline_keyboard=[[
+    types.InlineKeyboardButton(text="🔄 Создать ещё резюме", callback_data="start_cv")
+]])
+
+await bot.send_document(
+    message.chat.id,
+    types.BufferedInputFile(pdf.read(), filename="CV_Telecode_AI.pdf"),
+    caption=t["success"],
+    reply_markup=kb_new
+    )
 
         await bot.send_message(
             ADMIN_ID,
